@@ -19,21 +19,12 @@ tailored presets, and you can type in any other language.
 
 ## What it looks like
 
-```
-┌─ Anki ──────────────────┬─────────────────────────────┐
-│                         │ 友達  Japanese ▾  OpenRouter ▾│
-│         友達            │─────────────────────────────│
-│      (ともだち)          │ [Explain][Examples][Nuance] │
-│                         │─────────────────────────────│
-│                         │ 友達（ともだち）— friend     │
-│                         │                             │
-│                         │ The everyday word for       │
-│                         │ "friend". More casual than  │
-│                         │ 友人（ゆうじん）...          │
-│                         │─────────────────────────────│
-│ Again  Hard  Good  Easy │ Ask anything…          [↵]  │
-└─────────────────────────┴─────────────────────────────┘
-```
+<p align="center">
+  <img src="docs/panel.png" alt="The Ayumi-Assistant panel docked beside an Anki card, explaining 七転び八起き" width="420">
+</p>
+
+The panel sits beside your cards. It knows which card you're on, so **Explain**
+works without typing the word out — and you can ask anything else in the box.
 
 ---
 
