@@ -124,8 +124,8 @@ rewrites this, so you rarely need to edit it by hand.
   about it when it is not. Her warmth is deliberately kept in the *tone* rather
   than in extra words, so answers stay short.
   Set it to `""` to switch the character off entirely and get a plain,
-  neutral assistant, or replace it with any character you like. `{language}` is
-  substituted here too.
+  neutral assistant, or replace it with any character you like. `{language}` and
+  `{explain_lang}` are substituted here too.
 - **`explanation_language`** — the language Ayumi *writes in*. Independent of
   what you are studying, so you can learn Japanese with explanations in Bahasa
   Indonesia. Also settable from the second dropdown in the panel, which accepts
