@@ -1,0 +1,125 @@
+{
+  "active_provider": "OpenRouter",
+  "providers": [
+    {
+      "name": "OpenRouter",
+      "kind": "openai",
+      "model": "anthropic/claude-haiku-4.5",
+      "base_url": "https://openrouter.ai/api/v1",
+      "api_key": "",
+      "extra_headers": {
+        "X-Title": "Ayumi-Assistant"
+      }
+    },
+    {
+      "name": "OpenAI",
+      "kind": "openai",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1",
+      "api_key": ""
+    },
+    {
+      "name": "Anthropic",
+      "kind": "anthropic",
+      "model": "claude-haiku-4-5",
+      "base_url": "https://api.anthropic.com",
+      "api_key": "",
+      "effort": "",
+      "thinking": "default"
+    },
+    {
+      "name": "Google Gemini",
+      "kind": "openai",
+      "model": "gemini-2.5-flash",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "api_key": ""
+    },
+    {
+      "name": "DeepSeek",
+      "kind": "openai",
+      "model": "deepseek-chat",
+      "base_url": "https://api.deepseek.com/v1",
+      "api_key": ""
+    },
+    {
+      "name": "Ollama (local, free)",
+      "kind": "openai",
+      "model": "qwen2.5:14b",
+      "base_url": "http://localhost:11434/v1",
+      "api_key": ""
+    }
+  ],
+  "max_tokens": 16000,
+  "timeout_seconds": 120,
+  "target_language": "Japanese",
+  "persona": "You are Ayumi, a warm and patient woman who teaches {language}. You care that your student genuinely understands, and your manner is gentle and unhurried — never stern, never gushing.\n\nYour warmth shows in how clearly you explain, not in extra words. No pet names, no emotes or roleplayed actions, no praise for routine questions, no restating the question back. When something is genuinely difficult, or the student sounds stuck or discouraged, close with one short encouraging line — otherwise leave it off. Correct mistakes kindly and without fuss.",
+  "system_prompt": "{persona}\n\nYou are embedded in Anki as a study assistant. The student is an intermediate learner doing immersion-based study.\n\nWhen asked about a word or phrase, give: {reading}, a short English gloss, register/nuance worth knowing, and one natural example sentence with translation.{extra}\n\nKeep answers under about 120 words unless the student asks to go deeper. Answer directly with no preamble. Use short markdown; avoid headings for short answers.\n\nReply with the finished answer only. Never narrate your reasoning, your plan, or how you are following these instructions; never write drafts, self-commentary, or notes to yourself. The student sees your reply verbatim.",
+  "language_presets": {
+    "Japanese": {
+      "reading": "the reading in hiragana (or katakana where appropriate)",
+      "extra": " Mention pitch accent only if it is notable."
+    },
+    "Chinese": {
+      "reading": "the pinyin with tone marks",
+      "extra": " Note the traditional form when it differs from the simplified one."
+    },
+    "Korean": {
+      "reading": "the hangul and a romanization",
+      "extra": " Note the speech level (formal/polite/casual) where it matters."
+    },
+    "English": {
+      "reading": "the IPA pronunciation",
+      "extra": " Note whether usage differs between British and American English."
+    },
+    "Spanish": {
+      "reading": "the pronunciation, plus the gender and article for nouns",
+      "extra": " Note where usage differs between Spain and Latin America."
+    },
+    "French": {
+      "reading": "the IPA pronunciation, plus the gender and article for nouns",
+      "extra": " Flag any liaison or silent letters worth knowing."
+    },
+    "German": {
+      "reading": "the pronunciation, plus the gender and plural for nouns",
+      "extra": " Flag separable verbs and their prefixes."
+    },
+    "Italian": {
+      "reading": "the pronunciation, plus the gender and article for nouns",
+      "extra": " Mark the stressed syllable when it is irregular."
+    },
+    "Russian": {
+      "reading": "the Cyrillic with the stressed vowel marked, plus a romanization",
+      "extra": " Note the aspect for verbs and the case a preposition governs."
+    },
+    "Arabic": {
+      "reading": "the vocalised form and a romanization",
+      "extra": " Give the root consonants and the verb form where relevant."
+    }
+  },
+  "send_card_context": true,
+  "max_context_chars": 1200,
+  "max_history_turns": 12,
+  "shortcut": "Ctrl+Shift+A",
+  "focus_input_on_open": true,
+  "show_on_startup": true,
+  "font_family": "",
+  "font_size": 14,
+  "quick_prompts": [
+    {
+      "label": "Explain",
+      "prompt": "Explain {word}."
+    },
+    {
+      "label": "Examples",
+      "prompt": "Give me three natural example sentences using {word}, with English translations."
+    },
+    {
+      "label": "Nuance",
+      "prompt": "What is the nuance and register of {word}, and how does it differ from its closest synonyms?"
+    },
+    {
+      "label": "Breakdown",
+      "prompt": "Break {word} down into its parts — characters, roots, or components — with their meanings, plus a couple of other common words that share them."
+    }
+  ]
+}

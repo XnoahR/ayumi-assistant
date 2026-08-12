@@ -1,0 +1,7 @@
+# Anki writes your personal settings here — including your API key.
+# Never commit it.
+meta.json
+
+__pycache__/
+*.pyc
+*.ankiaddon
