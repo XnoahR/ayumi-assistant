@@ -30,11 +30,13 @@ from .config import (
     KeyLookupError,
     active_provider,
     build_system_prompt,
+    explanation_language_names,
     language_names,
     load_config,
     provider_names,
     resolve_api_key,
     save_active_provider,
+    save_explanation_language,
     save_target_language,
 )
 
@@ -161,6 +163,22 @@ class AssistantPanel(QDockWidget):
                  self._on_language_typed)
         top_row.addWidget(self._language_combo, 0)
 
+        arrow = QLabel("→")
+        arrow.setToolTip("Studying … explained in …")
+        top_row.addWidget(arrow, 0)
+
+        self._explain_combo = QComboBox()
+        self._explain_combo.setEditable(True)
+        self._explain_combo.setToolTip(
+            "The language Ayumi writes her explanations in.\n"
+            "Type any language here — it does not have to be in the list."
+        )
+        self._explain_combo.setMinimumContentsLength(9)
+        qconnect(self._explain_combo.activated, self._on_explain_changed)
+        qconnect(self._explain_combo.lineEdit().editingFinished,
+                 self._on_explain_typed)
+        top_row.addWidget(self._explain_combo, 0)
+
         self._provider_combo = QComboBox()
         self._provider_combo.setToolTip(
             "Which configured provider to send to.\n"
@@ -172,6 +190,7 @@ class AssistantPanel(QDockWidget):
         layout.addLayout(top_row)
         self._reload_providers()
         self._reload_languages()
+        self._reload_explanation_languages()
 
         self._quick_row = QHBoxLayout()
         self._quick_row.setSpacing(4)
@@ -272,6 +291,37 @@ class AssistantPanel(QDockWidget):
 
     def _on_language_typed(self) -> None:
         self._apply_language(self._language_combo.currentText())
+
+    def _reload_explanation_languages(self) -> None:
+        cfg = load_config()
+        names = explanation_language_names(cfg)
+        current = str(cfg.get("explanation_language") or "")
+
+        self._explain_combo.blockSignals(True)
+        self._explain_combo.clear()
+        self._explain_combo.addItems(names)
+        self._explain_combo.setCurrentText(current)
+        self._explain_combo.blockSignals(False)
+
+    def _apply_explanation_language(self, language: str) -> None:
+        language = (language or "").strip()
+        if not language:
+            self._reload_explanation_languages()
+            return
+        if language == str(load_config().get("explanation_language") or ""):
+            return
+        try:
+            save_explanation_language(language)
+        except Exception as exc:  # noqa: BLE001
+            self._set_status(f"Could not save reply language: {exc}", error=True)
+            return
+        self._set_status(f"Ayumi will reply in {language}.")
+
+    def _on_explain_changed(self, index: int) -> None:
+        self._apply_explanation_language(self._explain_combo.itemText(index))
+
+    def _on_explain_typed(self) -> None:
+        self._apply_explanation_language(self._explain_combo.currentText())
 
     # ---------------------------------------------------------- providers ---
 

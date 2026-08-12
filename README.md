@@ -11,6 +11,10 @@ corrects kindly, and offers a word of encouragement when something is genuinely
 hard rather than praising every answer. If you'd rather have a plain assistant,
 her character can be switched off in one setting.
 
+She can explain in **your** language, not just English — pick Bahasa Indonesia,
+Spanish, Vietnamese or anything else, and the Japanese (or Chinese, or German)
+words stay in the original while everything around them is in your language.
+
 Works with any language you're studying. Japanese is the default; Chinese,
 Korean, Spanish, French, German, Italian, Russian, Arabic and English have
 tailored presets, and you can type in any other language.
@@ -139,10 +143,19 @@ questions — so answers stay as short as they would otherwise be.
 To change or remove her, edit `persona` in the config. Setting it to `""` gives
 you a neutral assistant with the same answer format.
 
-### Choosing your language
+### Choosing your languages
 
-Use the language dropdown at the top of the panel. It's editable — if your
-language isn't listed, just type it in.
+Two dropdowns at the top of the panel, read as **studying → explained in**:
+
+- The **first** is what you're studying (Japanese, Chinese, German…).
+- The **second** is the language Ayumi answers in (English, Bahasa Indonesia,
+  Vietnamese…).
+
+Both are editable — if your language isn't in the list, just type it.
+
+So an Indonesian learner of Japanese would set `Japanese → Bahasa Indonesia`,
+and get readings and example sentences in Japanese with every explanation in
+Indonesian.
 
 Listed languages get tailored guidance (Japanese gets hiragana readings and
 pitch accent; Chinese gets pinyin with tone marks; German gets noun gender and
@@ -161,6 +174,7 @@ The most useful ones:
 | --- | --- |
 | `persona` | Ayumi's character. Set to `""` for a plain, neutral assistant, or write your own. |
 | `target_language` | The language you're studying. |
+| `explanation_language` | The language Ayumi replies in. Defaults to English. |
 | `system_prompt` | How answers are formatted. Rewrite this to change the style, the length, or the explanation language. |
 | `providers` | The list of AI services. Add as many as you like. |
 | `quick_prompts` | The buttons above the transcript. |

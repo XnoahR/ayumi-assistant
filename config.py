@@ -15,7 +15,8 @@ ADDON_PACKAGE = __name__.split(".")[0]
 # Who Ayumi is. Warmth has to live in the tone, not in extra words — a chatty
 # tutor would wreck the short answer format, so the padding bans are explicit.
 DEFAULT_PERSONA = (
-    "You are Ayumi, a warm and patient woman who teaches {language}. You care "
+    "You are Ayumi, a warm and patient woman who teaches {language} and speaks "
+    "to your student in {explain_lang}. You care "
     "that your student genuinely understands, and your manner is gentle and "
     "unhurried — never stern, never gushing.\n\n"
     "Your warmth shows in how clearly you explain, not in extra words. No pet "
@@ -32,9 +33,12 @@ DEFAULT_SYSTEM_PROMPT = (
     "{persona}\n\n"
     "You are embedded in Anki as a study assistant. The student is an "
     "intermediate learner doing immersion-based study.\n\n"
-    "When asked about a word or phrase, give: {reading}, a short English gloss, "
-    "register/nuance worth knowing, and one natural example sentence with "
-    "translation.{extra}\n\n"
+    "Write to the student in {explain_lang}. Keep {language} words, readings "
+    "and example sentences in {language}; everything you say *about* them is "
+    "in {explain_lang}.\n\n"
+    "When asked about a word or phrase, give: {reading}, a short gloss in "
+    "{explain_lang}, register/nuance worth knowing, and one natural example "
+    "sentence translated into {explain_lang}.{extra}\n\n"
     "Keep answers under about 120 words unless the student asks to go deeper. "
     "Answer directly with no preamble. Use short markdown; avoid headings for "
     "short answers.\n\n"
@@ -90,6 +94,25 @@ LANGUAGE_PRESETS: dict[str, dict[str, str]] = {
 }
 
 GENERIC_PRESET = {"reading": "its pronunciation", "extra": ""}
+
+# The language Ayumi *writes in* — separate from the one being studied. The
+# dropdown is editable, so anything not listed here still works.
+EXPLANATION_LANGUAGES: list[str] = [
+    "English",
+    "Bahasa Indonesia",
+    "Bahasa Melayu",
+    "Chinese",
+    "Filipino",
+    "French",
+    "German",
+    "Japanese",
+    "Korean",
+    "Portuguese",
+    "Russian",
+    "Spanish",
+    "Thai",
+    "Vietnamese",
+]
 
 # Every field a provider entry may carry, with its fallback.
 PROVIDER_FIELDS: dict[str, Any] = {
@@ -177,6 +200,8 @@ DEFAULTS: dict[str, Any] = {
     "max_tokens": 16000,
     "timeout_seconds": 120,
     "target_language": "Japanese",
+    "explanation_language": "English",
+    "explanation_languages": EXPLANATION_LANGUAGES,
     "persona": DEFAULT_PERSONA,
     "system_prompt": DEFAULT_SYSTEM_PROMPT,
     "language_presets": LANGUAGE_PRESETS,
@@ -193,7 +218,7 @@ DEFAULTS: dict[str, Any] = {
         {
             "label": "Examples",
             "prompt": "Give me three natural example sentences using {word}, "
-            "with English translations.",
+            "with translations.",
         },
         {
             "label": "Nuance",
@@ -306,6 +331,21 @@ def load_config() -> dict[str, Any]:
     return cfg
 
 
+def explanation_language_names(cfg: dict[str, Any]) -> list[str]:
+    """Reply languages offered, with the current one always present."""
+    names = list(cfg.get("explanation_languages") or EXPLANATION_LANGUAGES)
+    current = str(cfg.get("explanation_language") or "").strip()
+    if current and current not in names:
+        names.insert(0, current)
+    return names
+
+
+def save_explanation_language(language: str) -> None:
+    raw = mw.addonManager.getConfig(ADDON_PACKAGE) or {}
+    raw["explanation_language"] = language
+    mw.addonManager.writeConfig(ADDON_PACKAGE, raw)
+
+
 def language_names(cfg: dict[str, Any]) -> list[str]:
     """Languages offered in the dropdown, with the current one always present."""
     names = sorted(cfg.get("language_presets") or {})
@@ -337,9 +377,11 @@ def build_system_prompt(cfg: dict[str, Any]) -> str:
 
     # The persona is its own template so it can name the language too. Clearing
     # `persona` turns the character off and leaves a plain, neutral assistant.
+    explain_lang = str(cfg.get("explanation_language") or "").strip() or "English"
+
     persona = str(cfg.get("persona") or "")
     try:
-        persona = persona.format(language=language)
+        persona = persona.format(language=language, explain_lang=explain_lang)
     except (KeyError, IndexError, ValueError):
         pass
 
@@ -347,6 +389,7 @@ def build_system_prompt(cfg: dict[str, Any]) -> str:
         filled = template.format(
             persona=persona,
             language=language,
+            explain_lang=explain_lang,
             reading=preset.get("reading", GENERIC_PRESET["reading"]),
             extra=preset.get("extra", ""),
         )

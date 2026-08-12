@@ -126,11 +126,19 @@ rewrites this, so you rarely need to edit it by hand.
   Set it to `""` to switch the character off entirely and get a plain,
   neutral assistant, or replace it with any character you like. `{language}` is
   substituted here too.
+- **`explanation_language`** — the language Ayumi *writes in*. Independent of
+  what you are studying, so you can learn Japanese with explanations in Bahasa
+  Indonesia. Also settable from the second dropdown in the panel, which accepts
+  any language you type. Target-language words, readings and example sentences
+  stay in the target language; only the explanation around them changes.
+- **`explanation_languages`** — the list offered in that dropdown. Purely a
+  convenience list; typing anything else works too.
 - **`target_language`** — the language you are studying. Also settable from the
   dropdown at the top of the panel, which accepts any language you type.
 - **`system_prompt`** — the assistant's standing instructions, used as a
   template. `{persona}` is filled from `persona`; `{language}`, `{reading}` and
-  `{extra}` come from `target_language` and `language_presets`. Rewrite it freely
+  `{extra}` come from `target_language` and `language_presets`; `{explain_lang}`
+  comes from `explanation_language`. Rewrite it freely
   to change the format, the length, or the language answers are written in — if
   you drop the placeholders, your text is used exactly as typed.
   It ends with an instruction not to narrate reasoning or drafts: keep that if
