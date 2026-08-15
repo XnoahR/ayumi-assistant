@@ -164,6 +164,7 @@ class AssistantPanel(QDockWidget):
         self._context_label = QLabel()
         self._context_label.setWordWrap(False)
         self._context_label.setTextFormat(Qt.TextFormat.RichText)
+        self._context_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._context_label.setSizePolicy(
             QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed
         )
@@ -201,18 +202,9 @@ class AssistantPanel(QDockWidget):
                  self._on_explain_typed)
         top_row.addWidget(self._explain_combo, 0)
 
-        self._provider_combo = QComboBox()
-        self._provider_combo.setToolTip(
-            "Which configured provider to send to.\n"
-            "Edit the list under Tools → Add-ons → Ayumi-Assistant → Config."
-        )
-        _compact_combo(self._provider_combo)
-        qconnect(self._provider_combo.activated, self._on_provider_changed)
         top_row.addStretch(1)
-        top_row.addWidget(self._provider_combo, 0)
 
         layout.addLayout(top_row)
-        self._reload_providers()
         self._reload_languages()
         self._reload_explanation_languages()
 
@@ -255,6 +247,17 @@ class AssistantPanel(QDockWidget):
 
         buttons.addStretch(1)
 
+        # The model is set once and rarely touched, so it lives down here
+        # rather than competing for space with the language selectors.
+        self._provider_combo = QComboBox()
+        self._provider_combo.setToolTip(
+            "Which configured provider/model to send to.\n"
+            "Edit the list under Tools → Add-ons → Ayumi-Assistant → Config."
+        )
+        _compact_combo(self._provider_combo)
+        qconnect(self._provider_combo.activated, self._on_provider_changed)
+        buttons.addWidget(self._provider_combo)
+
         clear_button = QPushButton("Clear")
         qconnect(clear_button.clicked, self.clear_conversation)
         _compact_button(clear_button)
@@ -262,6 +265,9 @@ class AssistantPanel(QDockWidget):
 
         layout.addLayout(buttons)
         self.setWidget(container)
+
+        # Populated last: the provider combo is built in the bottom row above.
+        self._reload_providers()
 
     def _rebuild_quick_prompts(self) -> None:
         while self._quick_row.count():
@@ -388,21 +394,27 @@ class AssistantPanel(QDockWidget):
             self._context = None
 
         colors = _theme()
-        size = max(9, load_config()["font_size"] - 2)
+        base = load_config()["font_size"]
+        # The word is the thing you are actually looking at, so it gets to be
+        # the biggest element in the panel. Long words shrink a little so a
+        # compound still fits on one line.
+        word_text = (self._context.word if self._context else "") or ""
+        size = base + 10 if len(word_text) <= 8 else base + 5
+        small = max(9, base - 2)
 
         if self._context and self._context.word:
             # Only the word goes on the line — deck and note type are long
             # enough to push it onto extra rows, so they live in the tooltip.
             word = html.escape(self._context.word)
             self._context_label.setText(
-                f'<span style="font-size:{size}px;">'
-                f'<b style="color:{colors["accent"]};">{word}</b></span>'
+                f'<span style="font-size:{size}px; color:{colors["accent"]};">'
+                f'<b>{word}</b></span>'
             )
             detail = [d for d in (self._context.deck, self._context.note_type) if d]
             self._context_label.setToolTip("\n".join(detail) or "Current card")
         else:
             self._context_label.setText(
-                f'<span style="color:{colors["muted"]}; font-size:{size}px;">'
+                f'<span style="color:{colors["muted"]}; font-size:{small}px;">'
                 "No card in view</span>"
             )
             self._context_label.setToolTip(
