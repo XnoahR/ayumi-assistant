@@ -394,7 +394,18 @@ def build_system_prompt(cfg: dict[str, Any]) -> str:
             extra=preset.get("extra", ""),
         )
     except (KeyError, IndexError, ValueError):
-        return template
+        filled = template
+
+    # A prompt saved before {explain_lang} existed — or one the user rewrote
+    # without it — would silently swallow the reply-language setting. Append
+    # the instruction explicitly rather than letting the setting do nothing.
+    if "{explain_lang}" not in template and explain_lang.strip().lower() != "english":
+        filled += (
+            f"\n\nWrite to the student in {explain_lang}. Keep {language} words, "
+            f"readings and example sentences in {language}; everything you say "
+            f"*about* them, including glosses and translations, is in "
+            f"{explain_lang}."
+        )
 
     # An empty persona would otherwise leave a blank gap at the top.
     return filled.strip()

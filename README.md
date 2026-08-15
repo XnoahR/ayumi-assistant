@@ -242,7 +242,14 @@ Set `"send_card_context": false` to stop card fields being included.
 
 ## Contributing
 
-Issues and pull requests welcome. Please don't include your `meta.json` or any
+Issues and pull requests welcome. There is a dependency-free test suite:
+
+```sh
+python3 tests/test_ayumi.py
+```
+
+It needs no network, no pytest and no Anki — transport is exercised against a
+local server, and the Anki-only imports are stubbed out. Please don't include your `meta.json` or any
 API key in a bug report.
 
 ## License

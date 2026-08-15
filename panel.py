@@ -80,15 +80,34 @@ def _theme() -> dict[str, str]:
     }
 
 
+def _compact_combo(combo: QComboBox) -> None:
+    """Shrink a dropdown to its content so three fit on one narrow row."""
+    combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    combo.setMinimumContentsLength(6)
+    combo.setMaxVisibleItems(16)
+    combo.setMaximumWidth(150)
+    font = combo.font()
+    font.setPointSize(max(7, font.pointSize() - 1))
+    combo.setFont(font)
+
+
+def _compact_button(button: QPushButton) -> None:
+    button.setMaximumHeight(23)
+    button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+    font = button.font()
+    font.setPointSize(max(7, font.pointSize() - 1))
+    button.setFont(font)
+
+
 class InputBox(QPlainTextEdit):
     """Multi-line input where Enter sends and Shift+Enter inserts a newline."""
 
     def __init__(self, on_submit) -> None:
         super().__init__()
         self._on_submit = on_submit
-        self.setPlaceholderText("Ask anything…  (Enter to send, Shift+Enter for a new line)")
+        self.setPlaceholderText("Ask anything…   (Enter to send)")
         self.setTabChangesFocus(True)
-        self.setMaximumHeight(96)
+        self.setMaximumHeight(72)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
     def keyPressEvent(self, event) -> None:  # noqa: N802 - Qt naming
@@ -137,19 +156,21 @@ class AssistantPanel(QDockWidget):
     def _build_ui(self) -> None:
         container = QWidget(self)
         layout = QVBoxLayout(container)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(6)
+        layout.setContentsMargins(6, 4, 6, 6)
+        layout.setSpacing(4)
 
-        top_row = QHBoxLayout()
-        top_row.setSpacing(6)
-
+        # The card line gets its own row: deck names are long, and letting it
+        # share a row with the dropdowns made it wrap to several lines.
         self._context_label = QLabel()
-        self._context_label.setWordWrap(True)
+        self._context_label.setWordWrap(False)
         self._context_label.setTextFormat(Qt.TextFormat.RichText)
         self._context_label.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed
         )
-        top_row.addWidget(self._context_label, 1)
+        layout.addWidget(self._context_label)
+
+        top_row = QHBoxLayout()
+        top_row.setSpacing(3)
 
         self._language_combo = QComboBox()
         self._language_combo.setEditable(True)
@@ -157,14 +178,15 @@ class AssistantPanel(QDockWidget):
             "The language you are studying.\n"
             "Type any language here — it does not have to be in the list."
         )
-        self._language_combo.setMinimumContentsLength(9)
+        _compact_combo(self._language_combo)
         qconnect(self._language_combo.activated, self._on_language_changed)
         qconnect(self._language_combo.lineEdit().editingFinished,
                  self._on_language_typed)
         top_row.addWidget(self._language_combo, 0)
 
         arrow = QLabel("→")
-        arrow.setToolTip("Studying … explained in …")
+        arrow.setToolTip("Studying → explained in")
+        arrow.setContentsMargins(1, 0, 1, 0)
         top_row.addWidget(arrow, 0)
 
         self._explain_combo = QComboBox()
@@ -173,7 +195,7 @@ class AssistantPanel(QDockWidget):
             "The language Ayumi writes her explanations in.\n"
             "Type any language here — it does not have to be in the list."
         )
-        self._explain_combo.setMinimumContentsLength(9)
+        _compact_combo(self._explain_combo)
         qconnect(self._explain_combo.activated, self._on_explain_changed)
         qconnect(self._explain_combo.lineEdit().editingFinished,
                  self._on_explain_typed)
@@ -184,7 +206,9 @@ class AssistantPanel(QDockWidget):
             "Which configured provider to send to.\n"
             "Edit the list under Tools → Add-ons → Ayumi-Assistant → Config."
         )
+        _compact_combo(self._provider_combo)
         qconnect(self._provider_combo.activated, self._on_provider_changed)
+        top_row.addStretch(1)
         top_row.addWidget(self._provider_combo, 0)
 
         layout.addLayout(top_row)
@@ -193,7 +217,8 @@ class AssistantPanel(QDockWidget):
         self._reload_explanation_languages()
 
         self._quick_row = QHBoxLayout()
-        self._quick_row.setSpacing(4)
+        self._quick_row.setSpacing(3)
+        self._quick_row.setContentsMargins(0, 0, 0, 0)
         quick_holder = QWidget()
         quick_holder.setLayout(self._quick_row)
         layout.addWidget(quick_holder)
@@ -213,22 +238,26 @@ class AssistantPanel(QDockWidget):
         layout.addWidget(self._input)
 
         buttons = QHBoxLayout()
-        buttons.setSpacing(4)
+        buttons.setSpacing(3)
+        buttons.setContentsMargins(0, 0, 0, 0)
 
         self._send_button = QPushButton("Send")
         self._send_button.setDefault(True)
         qconnect(self._send_button.clicked, self._on_submit)
+        _compact_button(self._send_button)
         buttons.addWidget(self._send_button)
 
         self._stop_button = QPushButton("Stop")
         self._stop_button.setEnabled(False)
         qconnect(self._stop_button.clicked, self.stop_streaming)
+        _compact_button(self._stop_button)
         buttons.addWidget(self._stop_button)
 
         buttons.addStretch(1)
 
         clear_button = QPushButton("Clear")
         qconnect(clear_button.clicked, self.clear_conversation)
+        _compact_button(clear_button)
         buttons.addWidget(clear_button)
 
         layout.addLayout(buttons)
@@ -251,6 +280,7 @@ class AssistantPanel(QDockWidget):
                 continue
             button = QPushButton(label)
             button.setToolTip(template)
+            _compact_button(button)
             qconnect(
                 button.clicked,
                 lambda _checked=False, tpl=template: self.send_prompt(self._expand(tpl)),
@@ -358,21 +388,25 @@ class AssistantPanel(QDockWidget):
             self._context = None
 
         colors = _theme()
+        size = max(9, load_config()["font_size"] - 2)
+
         if self._context and self._context.word:
+            # Only the word goes on the line — deck and note type are long
+            # enough to push it onto extra rows, so they live in the tooltip.
             word = html.escape(self._context.word)
-            deck = html.escape(self._context.deck or "")
-            suffix = (
-                f' <span style="color:{colors["muted"]};">· {deck}</span>' if deck else ""
-            )
             self._context_label.setText(
-                f'<span style="color:{colors["muted"]};">Card:</span> '
-                f'<b style="color:{colors["accent"]};">{word}</b>{suffix}'
+                f'<span style="font-size:{size}px;">'
+                f'<b style="color:{colors["accent"]};">{word}</b></span>'
             )
+            detail = [d for d in (self._context.deck, self._context.note_type) if d]
+            self._context_label.setToolTip("\n".join(detail) or "Current card")
         else:
             self._context_label.setText(
-                f'<span style="color:{colors["muted"]};">'
-                "No card in view — ask anything, or select text on a card."
-                "</span>"
+                f'<span style="color:{colors["muted"]}; font-size:{size}px;">'
+                "No card in view</span>"
+            )
+            self._context_label.setToolTip(
+                "Open a card, or select text on one, to ask about it."
             )
 
     def _expand(self, template: str) -> str:
