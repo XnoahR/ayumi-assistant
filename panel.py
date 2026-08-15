@@ -172,6 +172,8 @@ class AssistantPanel(QDockWidget):
 
         top_row = QHBoxLayout()
         top_row.setSpacing(3)
+        # Stretch on both sides centres the pair under the card word.
+        top_row.addStretch(1)
 
         self._language_combo = QComboBox()
         self._language_combo.setEditable(True)
